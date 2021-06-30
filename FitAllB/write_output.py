@@ -409,7 +409,7 @@ def write_errors(lsqr,i):
 
     index = 0
     for j in range(1,len(lines)):
-        if i+1 == eval(split(lines[j])[0]):
+        if i+1 == eval(((lines[j]).split())[0]):
             index = j
             break
     if index == 0:
@@ -506,7 +506,7 @@ def write_errors(lsqr,i):
 
     index = 0
     for j in range(1,len(lines)):
-        if i+1 == eval(split(lines[j])[0]):
+        if i+1 == eval(((lines[j]).split())[0]):
             index = j
             break
     if index == 0:
