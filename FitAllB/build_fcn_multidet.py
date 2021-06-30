@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from six.moves import range
 def FCN(inp):	
     """
     Function to build fcn.py, the module containing the functions to be 

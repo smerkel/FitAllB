@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 # Modules to import 
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 from FitAllB import check_input
 import logging
@@ -8,6 +10,7 @@ from optparse import OptionParser
 from copy import deepcopy
 import numpy as n
 import os
+from six.moves import range
 
 logging.basicConfig(level=logging.INFO,format='\n%(levelname)s: %(message)s')
 parser = OptionParser()
@@ -17,7 +20,7 @@ parser.add_option("-i", "--input", action="store",
 options , args = parser.parse_args()
 if options.filename == None:
     parser.print_help()
-    print "\nNo input file supplied [-i filename]\n"
+    print("\nNo input file supplied [-i filename]\n")
     sys.exit()
 
     
@@ -61,7 +64,7 @@ for k in range(far.fit['cycle']):
     # refine grain paramters
     far.fit['reforder'] = ['start%s' %k,'rotpos%s' %k,'end'] 
     far.fit['goon'] = far.fit['reforder'][0]
-    far.fit['newreject_grain'] = range(far.no_grains+1)
+    far.fit['newreject_grain'] = list(range(far.no_grains+1))
     from FitAllB import fit
     fit.refine(far)
     # refine globals
@@ -131,7 +134,7 @@ if far.files['near_flt_file'] != None:
         # refine grain paramters
         near.fit['reforder'] = ['start%s' %k,'rotpos%s' %k,'end'] 
         near.fit['goon'] = near.fit['reforder'][0]
-        near.fit['newreject_grain'] = range(near.no_grains+1)
+        near.fit['newreject_grain'] = list(range(near.no_grains+1))
         from FitAllB import fit
         fit.refine(near)
         # refine globals
@@ -165,7 +168,7 @@ if far.files['near_flt_file'] != None:
 
     
 # program ends here after deleting fcn.py and fcn.pyc
-print '\nNormal termination of FitGlobAll'
+print('\nNormal termination of FitGlobAll')
 os.remove('%s/fcn.py' %far.fit['direc'])
 os.remove('%s/fcn.pyc' %far.fit['direc'])
 sys.exit()

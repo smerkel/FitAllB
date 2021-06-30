@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 # Modules to import 
+from __future__ import absolute_import
+from __future__ import print_function
 from FitAllB import gofitallb
 
 import logging
@@ -12,7 +14,7 @@ if __name__=="__main__":
         from optparse import OptionParser
         parser = OptionParser()
         options  = gofitallb.get_options(parser)
-        print options
+        print(options)
         gofitallb.run(options)
     except:
         if options != None:

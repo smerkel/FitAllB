@@ -1,7 +1,10 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import ImageD11.columnfile as ic
 import numpy as n
 from copy import deepcopy
 import sys
+from six.moves import range
 
 def merge(stem,thresholds,output,logfile):
     """
@@ -172,14 +175,14 @@ def merge(stem,thresholds,output,logfile):
     f = open(output,'w')
     out = '#'
     for i in range(len(titles)):
-        if titles[i] in ic.FORMATS.keys():      
+        if titles[i] in list(ic.FORMATS.keys()):      
             out = out + ' %s' %titles[i]
     for j in range(len(final)):
         out = out + '\n'
 #        print '\r',j,len(data[0]),
         sys.stdout.flush()
         for i in range(len(titles)):
-            if titles[i] in ic.FORMATS.keys():      
+            if titles[i] in list(ic.FORMATS.keys()):      
                 out = out + ' ' + ic.FORMATS[titles[i]] %(final[j][titles.index(titles[i])])
     f.write(out)        
     f.close()
@@ -213,8 +216,8 @@ def two2one(in1,in2,out):
     
     f1 = ic.columnfile(in1) 
     f2 = ic.columnfile(in2) 
-    print in1,f1.nrows
-    print in2,f2.nrows
+    print(in1,f1.nrows)
+    print(in2,f2.nrows)
     assert f1.titles == f2.titles, 'Attempting to merge columnfiles with different column titles'
 
     f = open(in1,'r')
@@ -230,7 +233,7 @@ def two2one(in1,in2,out):
     flt = open(out,'w')
     flt.write(flt1+'\n'+flt2)
     flt.close
-    print out,f1.nrows+f2.nrows
+    print(out,f1.nrows+f2.nrows)
     
     
 def spot3d_id(filename):

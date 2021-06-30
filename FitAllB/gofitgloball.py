@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 from FitAllB import check_input
 import logging
@@ -5,6 +7,7 @@ from optparse import OptionParser
 from copy import deepcopy
 import numpy as n
 import os
+from six.moves import range
 
 def get_options(parser):
     parser.add_option("-i", "--input", action="store",
@@ -17,7 +20,7 @@ def get_options(parser):
 def run(options):
     if options.filename == None:
         #parser.print_help()
-        print "\nNo input file supplied [-i filename]\n"
+        print("\nNo input file supplied [-i filename]\n")
         sys.exit()
     
         
@@ -64,7 +67,7 @@ def run(options):
         far.fit['goon'] = far.fit['reforder'][0]
         if k==0: #start with globals in stead of grain refinement
             far.fit['reforder'] = ['start%s' %k,'end'] 
-        far.fit['newreject_grain'] = range(far.no_grains+1)
+        far.fit['newreject_grain'] = list(range(far.no_grains+1))
         from FitAllB import fit
         fit.refine(far)
         # refine globals
@@ -134,7 +137,7 @@ def run(options):
             # refine grain paramters
             near.fit['reforder'] = ['start%s' %k,'rotpos%s' %k,'end'] 
             near.fit['goon'] = near.fit['reforder'][0]
-            near.fit['newreject_grain'] = range(near.no_grains+1)
+            near.fit['newreject_grain'] = list(range(near.no_grains+1))
             from FitAllB import fit
             fit.refine(near)
             # refine globals
@@ -168,6 +171,6 @@ def run(options):
     
         
     # program ends here after deleting fcn.py and fcn.pyc
-    print '\nNormal termination of FitGlobAll'
+    print('\nNormal termination of FitGlobAll')
     os.remove('%s/fcn.py' %far.fit['direc'])
     os.remove('%s/fcn.pyc' %far.fit['direc'])

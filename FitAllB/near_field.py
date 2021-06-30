@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import numpy as n
 from xfab import tools
 from xfab import detector
 from polyxsim import reflections
 import sys
+from six.moves import range
 
 
 def find_refl(inp):
@@ -152,7 +155,7 @@ def match(inp):
 
                                 
             inp.nrefl.append(len(inp.id[i]))            
-            print 'grain', i+1, 'possible', len(inp.possible[i]),'actual', inp.nrefl[i]
+            print('grain', i+1, 'possible', len(inp.possible[i]),'actual', inp.nrefl[i])
                        
                        
                        

@@ -1,13 +1,15 @@
+from __future__ import absolute_import
 import numpy as n
 from xfab import tools
 from xfab import symmetry
 from xfab import detector
-import reject
+from . import reject
 import sys
 import logging
-import conversion
+from . import conversion
 from copy import deepcopy
 from string import split
+from six.moves import range
 logging.basicConfig(level=logging.DEBUG,format='%(levelname)s %(message)s')
 
 		
@@ -251,7 +253,7 @@ def write_errors(lsqr,i):
     if eps_ref == False:
         cov_eps = n.zeros((6,6))
     else:
-        free = lsqr.mg.fixed.values().count(False)
+        free = list(lsqr.mg.fixed.values()).count(False)
         assert free >= 6, 'wrong dimensions of covariance matrix'
         covariance = n.zeros((free,free))
         j1 = 0

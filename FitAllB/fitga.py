@@ -1,10 +1,13 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import numpy as n
-import check_input
-import write_output
-import reject
-import fit
+from . import check_input
+from . import write_output
+from . import reject
+from . import fit
 import fcn
 import time
+from six.moves import range
 try:
     from iminuit import Minuit
 except ImportError:
@@ -93,16 +96,16 @@ class fit_minuit():
                 self.mg.errors = self.m.errors
                 self.mg.fixed = self.m.fixed
 
-            print '\n\n*****Now fitting %s*****' %self.inp.fit['goon']
-            print 'newreject_grain', self.inp.fit['newreject_grain']
+            print('\n\n*****Now fitting %s*****' %self.inp.fit['goon'])
+            print('newreject_grain', self.inp.fit['newreject_grain'])
             # calculate starting values
             g = fit.grain_values(self)
             self.g_old = deepcopy(g)
             self.fval = sum(g)
-            print '\n%s starting value %e' %(self.inp.fit['goon'],self.fval)
+            print('\n%s starting value %e' %(self.inp.fit['goon'],self.fval))
             t1 = time.clock()
             self.fitglobals()
-            print 'Fit %s tolerance %e' %(self.inp.fit['goon'],self.m.tol)
+            print('Fit %s tolerance %e' %(self.inp.fit['goon'],self.m.tol))
             try:
                 self.m.errors = self.inp.errors
             except:
@@ -115,7 +118,7 @@ class fit_minuit():
                         pass
                     else:
                         observations = observations + self.inp.nrefl[j]
-                errordef1 = self.fval/(3*observations-self.m.fitarg.values().count(False))
+                errordef1 = self.fval/(3*observations-list(self.m.fitarg.values()).count(False))
                 self.m = Minuit(fcn.FCN_fitga,errordef=errordef1,pedantic=False,print_level=-1,**self.m.fitarg)
                 self.m.tol = self.m.tol/errordef1
             self.m.migrad()
@@ -128,8 +131,8 @@ class fit_minuit():
             write_output.write_global(self)
                 
             self.time = time.clock()-t1
-            print 'Fit %s time %i s' %(self.inp.fit['goon'],self.time)
-            print 'Fit %s value %e \n' %(self.inp.fit['goon'],self.m.fval)
+            print('Fit %s time %i s' %(self.inp.fit['goon'],self.time))
+            print('Fit %s value %e \n' %(self.inp.fit['goon'],self.m.fval))
                 
             # apply crystal_system restraints to unit cell parameters
             if 'hex' in self.inp.fit['crystal_system'] or 'trigonal' in self.inp.fit['crystal_system'] or 'tetra' in self.inp.fit['crystal_system'] :

@@ -3,16 +3,19 @@
 #
 # Checking input  
 #
+from __future__ import absolute_import
+from __future__ import print_function
 import ImageD11.columnfile as ic
 from string import split
 import sys, os 
-import write_output 
-import conversion
+from . import write_output 
+from . import conversion
 from xfab import tools
 from xfab import symmetry
 from xfab import detector
 import numpy as n
 import logging
+from six.moves import range
 try:
     from iminuit import Minuit
 except ImportError:
@@ -24,7 +27,7 @@ logging.basicConfig(level=logging.DEBUG,format='%(levelname)s %(message)s')
 
 def interrupt(killfile):
     if killfile is not None and os.path.exists(killfile):
-        print 'keyboard interrupt'
+        print('keyboard interrupt')
         raise KeyboardInterrupt
             
 class parse_input:
@@ -205,7 +208,7 @@ class parse_input:
         self.fit['stem'] = stem
         self.fit['direc'] = deepcopy(stem)
         try:
-            print self.fit['title']
+            print(self.fit['title'])
         except:
             pass
             
@@ -217,13 +220,13 @@ class parse_input:
         for item in self.needed_items:
             if item == 'log_file':
                 if item not in self.files and 'res_file' not in self.files:
-                    print 'Either log_file or res_file should be supplied.'
-                    print 'If both are given, res_file takes priority.'
+                    print('Either log_file or res_file should be supplied.')
+                    print('If both are given, res_file takes priority.')
                     self.missing = True
             else:
                 if item not in self.files:
                     if item not in self.fit:
-                        print self.needed_items[item]
+                        print(self.needed_items[item])
                         self.missing = True
 
             
@@ -244,10 +247,10 @@ class parse_input:
                 
         # calculate stiffness tensor
         if self.fit['stress'] == 0:
-            print 'No strain to stress conversion'
+            print('No strain to stress conversion')
             self.C = n.zeros((6,6))
         else:
-            print 'Both strain and stress given in output'
+            print('Both strain and stress given in output')
             self.C = conversion.formStiffnessMV(self.fit['crystal_system'],
                                                 c11=self.fit['c11'],c12=self.fit['c12'],c13=self.fit['c13'],c14=self.fit['c14'],c15=self.fit['c15'],c16=self.fit['c16'],
                                                                     c22=self.fit['c22'],c23=self.fit['c23'],c24=self.fit['c24'],c25=self.fit['c25'],c26=self.fit['c26'],
@@ -616,7 +619,7 @@ class parse_input:
         f.close()
 
         self.no_grains = int(split(input[0])[1])
-        self.grainno = range(1,self.no_grains+1)
+        self.grainno = list(range(1,self.no_grains+1))
         nn = 23 # jumping to first grain
 
         for gr in range(self.no_grains):
@@ -714,7 +717,7 @@ class parse_input:
                 if mis < 5:
                     dist = n.sqrt((self.x[i]-self.x[j])**2+(self.y[i]-self.y[j])**2)
                     if  dist < 0.1:
-                        print i+1,j+1,mis,self.x[i],self.y[i],self.z[i],self.x[j],self.y[j],self.z[j],dist
+                        print(i+1,j+1,mis,self.x[i],self.y[i],self.z[i],self.x[j],self.y[j],self.z[j],dist)
             
             
         
@@ -725,7 +728,7 @@ class parse_input:
             try:
                 f=open(self.files['res_file'],'r')
                 f.close()
-                print 'Resume refinement'
+                print('Resume refinement')
                 res = ic.columnfile(self.files['res_file'])
                 try:
                     self.grainno = res.getcolumn('grainno')
@@ -798,7 +801,7 @@ class parse_input:
                 logging.error('res_file: no file named %s' %self.files['res_file'])
                 raise IOError
         else:
-            print 'Start refinement from scratch' 
+            print('Start refinement from scratch') 
             return
 
 
@@ -807,9 +810,9 @@ class parse_input:
         try:
             f=open(rej_file,'r')
         except:
-            print 'Start refinement without apriori information about peak rejection' 
+            print('Start refinement without apriori information about peak rejection') 
             return
-        print 'Use apriori information about peak rejections' 
+        print('Use apriori information about peak rejections') 
         
         input = f.readlines()
         f.close()
@@ -1009,9 +1012,9 @@ class parse_input:
             
     def reject(self): # carry out initial rejections
 
-        import reject
-        print '\n\nNumber of read grains', self.no_grains
-        print 'Number of assigned reflections: ', n.sum(self.nrefl)
+        from . import reject
+        print('\n\nNumber of read grains', self.no_grains)
+        print('Number of assigned reflections: ', n.sum(self.nrefl))
         # set starting values
         self.newreject = 0
         self.fit['newreject_grain'] = []
@@ -1045,9 +1048,9 @@ class parse_input:
 
     def reject_multidet(self): # carry out initial rejections
 
-        import reject_multidet
-        print '\n\nNumber of read grains', self.no_grains
-        print 'Number of assigned reflections: ', n.sum(self.nrefl)
+        from . import reject_multidet
+        print('\n\nNumber of read grains', self.no_grains)
+        print('Number of assigned reflections: ', n.sum(self.nrefl))
         # set starting values
         self.newreject = 0
         self.fit['newreject_grain'] = []
@@ -1081,17 +1084,17 @@ class parse_input:
         
     def write_rej(self): # write the rejected peaks to rejection file
     
-        import reject
+        from . import reject
         reject.unique_list(self.fit['skip'])
-        print 'Skip the following grains:', self.fit['skip']
-        print 'Actual number of grains in fit', self.no_grains - len(self.fit['skip'])
+        print('Skip the following grains:', self.fit['skip'])
+        print('Actual number of grains in fit', self.no_grains - len(self.fit['skip']))
         observations = 0
         for i in range(self.no_grains):
             if i+1 in self.fit['skip']:
                 pass
             else:
                 observations = observations + self.nrefl[i]
-        print 'Total number of reflections in these', observations,'\n' 
+        print('Total number of reflections in these', observations,'\n') 
        
         write_output.write_rej(self,message=('%s\n\ncheck_input' %self.fit['title']))
         

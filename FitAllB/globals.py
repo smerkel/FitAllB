@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import numpy as n
-import check_input
-import write_output
-import reject
+from . import check_input
+from . import write_output
+from . import reject
 import fcn
 import time
+from six.moves import range
 try:
     from iminuit import Minuit
 except ImportError:
@@ -50,13 +53,13 @@ class fit_minuit():
 
 		# carry out refinement
         if self.ref == True:
-            print '\n\n*****Now fitting %s*****' %self.inp.fit['goon']
+            print('\n\n*****Now fitting %s*****' %self.inp.fit['goon'])
 #            print 'rerefine', self.inp.rerefine
-            print 'newreject_grain', self.inp.fit['newreject_grain']
+            print('newreject_grain', self.inp.fit['newreject_grain'])
             # calculate starting values
             g = self.grain_values()
             self.fval = sum(g)
-            print '\n%s starting value %e' %(self.inp.fit['goon'],self.fval)
+            print('\n%s starting value %e' %(self.inp.fit['goon'],self.fval))
             t1 = time.clock()
             try:
                 self.mg = Minuit(fcn.FCNgrain,errordef=1)
@@ -75,14 +78,14 @@ class fit_minuit():
                         pass
                     else:	
                         if i == 0:
-                            print 'Fit %s tolerance %e' %(self.inp.fit['goon'],self.mg.tol)
+                            print('Fit %s tolerance %e' %(self.inp.fit['goon'],self.mg.tol))
                         self.mg.values['i'] = i
                         try:
                             self.mg.fitarg['i'] = i
                         except:
                             pass
                         self.fitglobalgrain(i)
-                        print '\rRefining grain %i' %(i+1),
+                        print('\rRefining grain %i' %(i+1), end=' ')
                         sys.stdout.flush()
                         self.mg.migrad()
 #                        self.scale_errors(i)
@@ -96,9 +99,9 @@ class fit_minuit():
                         write_output.write_global(self)
 				
             self.time = time.clock()-t1
-            print 'Fit %s time %i s' %(self.inp.fit['goon'],self.time)
+            print('Fit %s time %i s' %(self.inp.fit['goon'],self.time))
             self.fval = sum(g)
-            print 'Fit %s value %e \n' %(self.inp.fit['goon'],self.fval)
+            print('Fit %s value %e \n' %(self.inp.fit['goon'],self.fval))
 			    
 			# get global parameters and errors on these as average and spread of global_parameters
             global_parameters = n.array(global_parameters)
@@ -114,10 +117,10 @@ class fit_minuit():
                 spread_global_parameters = spread_global_parameters + (global_parameters[i] - average_global_parameters)**2 * weight[i] 
             spread_global_parameters = spread_global_parameters**.5
             
-            print global_parameters
-            print weight
-            print average_global_parameters
-            print spread_global_parameters
+            print(global_parameters)
+            print(weight)
+            print(average_global_parameters)
+            print(spread_global_parameters)
             
             for j in range(len(self.globals)):
                 self.mg.values[self.globals[j]] = average_global_parameters[j]
@@ -194,7 +197,7 @@ class fit_minuit():
         for i in range(self.inp.no_grains):
             if i+1 not in self.inp.fit['skip']:                
                 g[i] = n.sum(self.inp.residual[i])
-                print 'Grain %i %i: %e %f' %(i+1,self.inp.nrefl[i],g[i],g[i]/self.inp.nrefl[i])
+                print('Grain %i %i: %e %f' %(i+1,self.inp.nrefl[i],g[i],g[i]/self.inp.nrefl[i]))
             
         return g
 			
@@ -239,7 +242,7 @@ class fit_minuit():
                                         self.mg.values['epsbb%s' %i],self.mg.values['epsbc%s' %i],self.mg.values['epscc%s' %i]) 
                         if value > self.inp.fit['limit'][1]*g[i]/self.inp.nrefl[i]:
                             new = 1
-                            print 'Rejected peak id %i from grain %i (hkl: %i %i %i, limit: %f): %f' %(self.inp.id[i][j],i+1,self.inp.h[i][j],self.inp.k[i][j],self.inp.l[i][j],self.inp.fit['limit'][1],value*self.inp.nrefl[i]/g[i])
+                            print('Rejected peak id %i from grain %i (hkl: %i %i %i, limit: %f): %f' %(self.inp.id[i][j],i+1,self.inp.h[i][j],self.inp.k[i][j],self.inp.l[i][j],self.inp.fit['limit'][1],value*self.inp.nrefl[i]/g[i]))
                             reject.reject(self.inp,i,j,value*self.inp.nrefl[i]/g[i])
                         
         for i in range(self.inp.no_grains):

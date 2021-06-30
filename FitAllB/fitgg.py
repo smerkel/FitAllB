@@ -1,10 +1,13 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import numpy as n
-import check_input
-import write_output
-import reject
-import fit
+from . import check_input
+from . import write_output
+from . import reject
+from . import fit
 import fcn
 import time
+from six.moves import range
 try:
     from iminuit import Minuit
 except ImportError:
@@ -56,8 +59,8 @@ class fit_minuit():
 
         # carry out refinement
         if self.ref == True:
-            print '\n\n*****Now fitting %s*****' %self.inp.fit['goon']
-            print 'newreject_grain', self.inp.fit['newreject_grain']
+            print('\n\n*****Now fitting %s*****' %self.inp.fit['goon'])
+            print('newreject_grain', self.inp.fit['newreject_grain'])
             # calculate starting values
             t1 = time.clock()
             self.m = Minuit(fcn.FCN,errordef=1,pedantic=False,print_level=-1,**self.inp.fitarg)
@@ -75,7 +78,7 @@ class fit_minuit():
             g = fit.grain_values(self)
             self.g_old = deepcopy(g)
             self.fval = sum(g)
-            print '\n%s starting value %e' %(self.inp.fit['goon'],self.fval)
+            print('\n%s starting value %e' %(self.inp.fit['goon'],self.fval))
             try:
                 for entries in self.mg.fixed:
                     self.mg.fixed[entries] = True
@@ -88,7 +91,7 @@ class fit_minuit():
                         pass
                     else:   
                         if i == 0:
-                            print 'Fit %s tolerance %e' %(self.inp.fit['goon'],self.mg.tol)
+                            print('Fit %s tolerance %e' %(self.inp.fit['goon'],self.mg.tol))
                         self.mg.values['i'] = i
                         try:
                             self.mg.fitarg['i'] = i
@@ -97,10 +100,10 @@ class fit_minuit():
                         except:
                             pass
                         self.fitglobalgrain(i)
-                        print '\rRefining grain %i' %(i+1),
+                        print('\rRefining grain %i' %(i+1), end=' ')
                         sys.stdout.flush()
                         try:
-                            errordef1 = self.g_old[i]/(3*self.inp.nrefl[i]-self.mg.fitarg.values().count(False))   # Best alternative to scale_errors which is not possible by changing up with hesse in iminiut
+                            errordef1 = self.g_old[i]/(3*self.inp.nrefl[i]-list(self.mg.fitarg.values()).count(False))   # Best alternative to scale_errors which is not possible by changing up with hesse in iminiut
                             self.mg = Minuit(fcn.FCNgrain,errordef=errordef1,pedantic=False,print_level=-1,**self.mg.fitarg)
                             self.mg.tol = self.mg.tol/errordef1
                         except:
@@ -118,9 +121,9 @@ class fit_minuit():
                         write_output.write_global(self)
                 
             self.time = time.clock()-t1
-            print '\nFit %s time %i s' %(self.inp.fit['goon'],self.time)
+            print('\nFit %s time %i s' %(self.inp.fit['goon'],self.time))
             self.fval = sum(g)
-            print 'Fit %s value %e \n' %(self.inp.fit['goon'],self.fval)
+            print('Fit %s value %e \n' %(self.inp.fit['goon'],self.fval))
                 
             # get global parameters and errors on these as average and spread of global_parameters
             global_parameters = n.array(global_parameters)

@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import numpy as n
-import check_input
-import write_output
-import reject
+from . import check_input
+from . import write_output
+from . import reject
 import fcn
 import time
+from six.moves import range
 try:
     from iminuit import Minuit
 except ImportError:
@@ -72,13 +75,13 @@ class fit_minuit():
                 self.mg.values = self.m.values
                 self.mg.errors = self.m.errors
                 self.mg.fixed = self.m.fixed
-            print '\n\n*****Now fitting %s*****' %self.inp.fit['goon']
-            print 'newreject_grain', self.inp.fit['newreject_grain']
+            print('\n\n*****Now fitting %s*****' %self.inp.fit['goon'])
+            print('newreject_grain', self.inp.fit['newreject_grain'])
             # calculate starting values
             g = grain_values(self)
             self.g_old = deepcopy(g)
             self.fval = sum(g)
-            print '\n%s starting value %e' %(self.inp.fit['goon'],self.fval)
+            print('\n%s starting value %e' %(self.inp.fit['goon'],self.fval))
             t1 = time.clock()
             try:
                 self.mg = Minuit(fcn.FCNgrain,errordef=1,pedantic=False,print_level=-1,**self.m.fitarg)
@@ -107,19 +110,19 @@ class fit_minuit():
                         elif 'rotpos' in self.inp.fit['goon']:
                             self.fitrotposgrain(i)
                         if i == 0:
-                            print 'Fit %s tolerance %e' %(self.inp.fit['goon'],self.mg.tol)
+                            print('Fit %s tolerance %e' %(self.inp.fit['goon'],self.mg.tol))
                         self.mg.values['i'] = i
                         try:
                             self.mg.fitarg['i'] = i
                             self.mg.fitarg["fix_i"] = True
-                            errordef1 = self.g_old[i]/(3*self.inp.nrefl[i]-self.mg.fitarg.values().count(False))   # Best alternative to scale_errors which is not possible by changing up with hesse in iminiut
+                            errordef1 = self.g_old[i]/(3*self.inp.nrefl[i]-list(self.mg.fitarg.values()).count(False))   # Best alternative to scale_errors which is not possible by changing up with hesse in iminiut
                             self.mg = Minuit(fcn.FCNgrain,errordef=errordef1,pedantic=False,print_level=-1,**self.mg.fitarg)
                             self.mg.tol = self.mg.tol/errordef1
                         except:
                             pass
                         #print self.mg.list_of_vary_param()
                         #print self.mg.list_of_fixed_param()
-                        print '\rRefining grain %i' %(i+1),
+                        print('\rRefining grain %i' %(i+1), end=' ')
                         sys.stdout.flush()
                         self.mg.migrad()
                         try:
@@ -141,9 +144,9 @@ class fit_minuit():
                         g[i] = self.mg.fval
                 
             self.time = time.clock()-t1
-            print '\nFit %s time %i s' %(self.inp.fit['goon'],self.time)
+            print('\nFit %s time %i s' %(self.inp.fit['goon'],self.time))
             self.fval = sum(g)
-            print 'Fit %s value %e \n' %(self.inp.fit['goon'],self.fval)
+            print('Fit %s value %e \n' %(self.inp.fit['goon'],self.fval))
                 
             
             # reject outliers and save cycle info   
@@ -359,7 +362,7 @@ def grain_values(lsqr):
 #       """
         
         # rebuild function and load
-        import build_fcn
+        from . import build_fcn
         build_fcn.FCN(lsqr.inp)
         import fcn
         reload(fcn)
@@ -408,7 +411,7 @@ def grain_values(lsqr):
         reject.mad(data,poor,lsqr.inp.fit['rej_vol']**2)
         for i in range(lsqr.inp.no_grains):
             if i+1 not in lsqr.inp.fit['skip']:                
-                print 'Grain %i %i: %e %f' %(i+1,lsqr.inp.nrefl[i],g[i],g[i]/lsqr.inp.nrefl[i])
+                print('Grain %i %i: %e %f' %(i+1,lsqr.inp.nrefl[i],g[i],g[i]/lsqr.inp.nrefl[i]))
         # give back old values  
 #        lsqr.m.errors = temp2      
 #        lsqr.m.fixed = temp3       
@@ -461,7 +464,7 @@ def reject_outliers(lsqr):
                                         lsqr.m.values['epsbb%s' %i],lsqr.m.values['epsbc%s' %i],lsqr.m.values['epscc%s' %i]) 
                         if value > lsqr.inp.fit['rej_resmean']*g[i]/lsqr.inp.nrefl[i]:
                             new = 1
-                            print 'Rejected peak id %i from grain %i (hkl: %i %i %i, limit: %f): %f' %(lsqr.inp.id[i][j],i+1,lsqr.inp.h[i][j],lsqr.inp.k[i][j],lsqr.inp.l[i][j],lsqr.inp.fit['rej_resmean'],value*lsqr.inp.nrefl[i]/g[i])
+                            print('Rejected peak id %i from grain %i (hkl: %i %i %i, limit: %f): %f' %(lsqr.inp.id[i][j],i+1,lsqr.inp.h[i][j],lsqr.inp.k[i][j],lsqr.inp.l[i][j],lsqr.inp.fit['rej_resmean'],value*lsqr.inp.nrefl[i]/g[i]))
                             reject.reject(lsqr.inp,i,j,value*lsqr.inp.nrefl[i]/g[i])
                         
         if 'globals' not in lsqr.inp.fit['goon']:
