@@ -6,7 +6,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import ImageD11.columnfile as ic
-from string import split
+# from string import split no need in python3
 import sys, os 
 from . import write_output 
 from . import conversion

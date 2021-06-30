@@ -8,7 +8,8 @@ import sys
 import logging
 from . import conversion
 from copy import deepcopy
-from string import split
+# from string import split 
+# no need in python3
 from six.moves import range
 logging.basicConfig(level=logging.DEBUG,format='%(levelname)s %(message)s')
 
